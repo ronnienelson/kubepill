@@ -11,6 +11,8 @@ No browser. No Electron. No internet. **~1 MB.**
 ---
 <img width="527" height="104" alt="image" src="https://github.com/user-attachments/assets/72a8487a-5b43-47d3-bc47-04da4f55c529" />
 <img width="609" height="381" alt="image" src="https://github.com/user-attachments/assets/ae347a49-3792-4526-a252-5a9744a1db98" />
+<img width="619" height="656" alt="image" src="https://github.com/user-attachments/assets/945c0a86-a72f-48e1-bf3d-e812e54888b1" />
+
 
 
 ## Why
