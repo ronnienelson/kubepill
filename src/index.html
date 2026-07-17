@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>kubePill</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <div class="titlebar">
+    <div class="dragzone" id="dragzone" title="Drag to move · double-click to expand/collapse">
+      <span class="dot" style="background:#fb4934"></span>
+      <span class="dot" style="background:#fabd2f"></span>
+      <span class="dot" style="background:#b8bb26"></span>
+      <span class="prompt"><span class="p">~ $</span> <span class="k">kubectl</span>&nbsp;</span>
+    </div>
+    <input id="q" aria-label="Type to search commands" autocomplete="off" spellcheck="false">
+    <span class="cursor" id="blockcursor"></span>
+    <button class="winbtn" id="pin" title="Pin on top">&#9679;</button>
+    <button class="winbtn" id="toggle" title="Expand / collapse"><span id="chev">&#9662;</span></button>
+    <button class="winbtn close" id="quit" title="Quit">&#215;</button>
+  </div>
+
+  <div id="panel">
+    <div class="tabs" id="tabs"></div>
+    <div class="rows" id="rows"></div>
+    <div class="status">
+      <span><span class="count" id="count">0</span> cmds</span>
+      <span>type in the bar to grep · click a command for man page</span>
+      <span class="right">esc collapses</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="man" role="dialog" aria-modal="true" id="man"></div>
+</div>
+
+<script src="js/neutralino.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

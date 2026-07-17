@@ -1,0 +1,663 @@
+[
+  {
+    "name": "pods",
+    "color": "#b8bb26",
+    "commands": [
+      {
+        "cmd": "kubectl get pods",
+        "short": "list pods",
+        "desc": "Lists all pods in the current namespace, showing name, readiness, status, restarts, and age. Your first stop for checking what's running.",
+        "examples": [
+          {
+            "command": "kubectl get pods",
+            "note": "list pods in the current namespace"
+          },
+          {
+            "command": "kubectl get pods -A",
+            "note": "list pods across all namespaces"
+          },
+          {
+            "command": "kubectl get pods -o wide",
+            "note": "include node and pod IP columns"
+          },
+          {
+            "command": "kubectl get pods -w",
+            "note": "watch for changes in real time"
+          },
+          {
+            "command": "kubectl get pods -l app=nginx",
+            "note": "filter by label selector"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl describe pod",
+        "short": "inspect a pod",
+        "desc": "Shows the full state of a pod: containers, images, volumes, conditions, and — most usefully — the event log at the bottom. The go-to when a pod won't start.",
+        "examples": [
+          {
+            "command": "kubectl describe pod my-pod",
+            "note": "full detail for one pod"
+          },
+          {
+            "command": "kubectl describe pod my-pod -n staging",
+            "note": "same, in the staging namespace"
+          },
+          {
+            "command": "kubectl describe pods -l app=api",
+            "note": "describe every pod matching a label"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl delete pod",
+        "short": "delete a pod",
+        "desc": "Deletes a pod. If it's managed by a Deployment or ReplicaSet, a replacement is created automatically — deleting a pod is the standard way to force a restart.",
+        "examples": [
+          {
+            "command": "kubectl delete pod my-pod",
+            "note": "delete one pod"
+          },
+          {
+            "command": "kubectl delete pod my-pod --grace-period=0 --force",
+            "note": "force-kill a stuck pod"
+          },
+          {
+            "command": "kubectl delete pods -l app=worker",
+            "note": "delete all pods with a label"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl top pod",
+        "short": "pod cpu / memory",
+        "desc": "Shows live CPU and memory usage per pod (requires metrics-server). Handy for spotting which pod is eating the node.",
+        "examples": [
+          {
+            "command": "kubectl top pod",
+            "note": "usage for pods in current namespace"
+          },
+          {
+            "command": "kubectl top pod --containers",
+            "note": "break usage down per container"
+          },
+          {
+            "command": "kubectl top pod -A --sort-by=memory",
+            "note": "biggest memory users cluster-wide"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "debug",
+    "color": "#fb4934",
+    "commands": [
+      {
+        "cmd": "kubectl logs",
+        "short": "container logs",
+        "desc": "Prints a container's stdout/stderr. The single most-used debugging command — pair -f with --tail to follow a live stream without dumping history.",
+        "examples": [
+          {
+            "command": "kubectl logs my-pod",
+            "note": "print the pod's logs"
+          },
+          {
+            "command": "kubectl logs -f my-pod",
+            "note": "follow logs live"
+          },
+          {
+            "command": "kubectl logs my-pod -c sidecar",
+            "note": "logs from a specific container"
+          },
+          {
+            "command": "kubectl logs my-pod --previous",
+            "note": "logs from the last crashed instance"
+          },
+          {
+            "command": "kubectl logs -f deploy/api --tail=100",
+            "note": "follow a deployment's logs"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl exec",
+        "short": "shell into a container",
+        "desc": "Runs a command inside a running container. With -it and a shell, it's your SSH-equivalent for poking around inside a pod.",
+        "examples": [
+          {
+            "command": "kubectl exec -it my-pod -- /bin/sh",
+            "note": "open an interactive shell"
+          },
+          {
+            "command": "kubectl exec my-pod -- env",
+            "note": "print the container's env vars"
+          },
+          {
+            "command": "kubectl exec -it my-pod -c app -- bash",
+            "note": "shell into a specific container"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl port-forward",
+        "short": "tunnel to a pod",
+        "desc": "Forwards a local port to a pod or service, letting you hit cluster-internal things from localhost without exposing them.",
+        "examples": [
+          {
+            "command": "kubectl port-forward my-pod 8080:80",
+            "note": "localhost:8080 → pod port 80"
+          },
+          {
+            "command": "kubectl port-forward svc/api 3000:3000",
+            "note": "forward to a service instead"
+          },
+          {
+            "command": "kubectl port-forward deploy/db 5432",
+            "note": "same local and remote port"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl get events",
+        "short": "cluster events",
+        "desc": "Lists recent cluster events — scheduling failures, image pull errors, OOM kills. Sort by timestamp to read them chronologically.",
+        "examples": [
+          {
+            "command": "kubectl get events --sort-by=.lastTimestamp",
+            "note": "events in time order"
+          },
+          {
+            "command": "kubectl get events -n kube-system",
+            "note": "events in a namespace"
+          },
+          {
+            "command": "kubectl get events --field-selector type=Warning",
+            "note": "warnings only"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl cp",
+        "short": "copy files",
+        "desc": "Copies files between your machine and a container, in either direction. Requires tar inside the container.",
+        "examples": [
+          {
+            "command": "kubectl cp my-pod:/var/log/app.log ./app.log",
+            "note": "pod → local"
+          },
+          {
+            "command": "kubectl cp ./config.yml my-pod:/etc/app/",
+            "note": "local → pod"
+          },
+          {
+            "command": "kubectl cp staging/my-pod:/tmp/dump.sql ./dump.sql",
+            "note": "with a namespace prefix"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "deploy",
+    "color": "#83a598",
+    "commands": [
+      {
+        "cmd": "kubectl apply",
+        "short": "apply manifests",
+        "desc": "Creates or updates resources from YAML/JSON manifests, declaratively. The backbone of GitOps-style workflows — safe to run repeatedly.",
+        "examples": [
+          {
+            "command": "kubectl apply -f deployment.yaml",
+            "note": "apply one file"
+          },
+          {
+            "command": "kubectl apply -f ./manifests/",
+            "note": "apply a whole directory"
+          },
+          {
+            "command": "kubectl apply -k ./overlays/prod",
+            "note": "apply a kustomize overlay"
+          },
+          {
+            "command": "kubectl apply -f app.yaml --dry-run=server",
+            "note": "validate without changing anything"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl rollout",
+        "short": "manage rollouts",
+        "desc": "Controls deployment rollouts: check status, view history, undo a bad release, or trigger a rolling restart.",
+        "examples": [
+          {
+            "command": "kubectl rollout status deploy/api",
+            "note": "wait for a rollout to finish"
+          },
+          {
+            "command": "kubectl rollout restart deploy/api",
+            "note": "rolling restart (fresh pods)"
+          },
+          {
+            "command": "kubectl rollout undo deploy/api",
+            "note": "roll back to previous revision"
+          },
+          {
+            "command": "kubectl rollout history deploy/api",
+            "note": "list past revisions"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl scale",
+        "short": "scale replicas",
+        "desc": "Sets the replica count on a deployment, replicaset, or statefulset. Scaling to 0 is a quick way to pause a workload without deleting it.",
+        "examples": [
+          {
+            "command": "kubectl scale deploy/api --replicas=5",
+            "note": "scale up to 5 pods"
+          },
+          {
+            "command": "kubectl scale deploy/worker --replicas=0",
+            "note": "pause a workload"
+          },
+          {
+            "command": "kubectl scale sts/db --replicas=3",
+            "note": "scale a statefulset"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl set image",
+        "short": "update an image",
+        "desc": "Swaps the container image on a running deployment, triggering a rolling update — the imperative shortcut for shipping a new tag.",
+        "examples": [
+          {
+            "command": "kubectl set image deploy/api api=repo/api:v2.1",
+            "note": "roll out a new tag"
+          },
+          {
+            "command": "kubectl set image deploy/api api=repo/api:v2.1 --record",
+            "note": "record it in rollout history"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl edit",
+        "short": "edit live resources",
+        "desc": "Opens the live resource in your $EDITOR; saving applies the change immediately. Great for quick fixes, dangerous as a habit — the change lives only in the cluster.",
+        "examples": [
+          {
+            "command": "kubectl edit deploy/api",
+            "note": "edit a deployment in place"
+          },
+          {
+            "command": "kubectl edit cm/app-config",
+            "note": "edit a configmap"
+          },
+          {
+            "command": "KUBE_EDITOR=nano kubectl edit svc/api",
+            "note": "use a specific editor"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "cluster",
+    "color": "#fabd2f",
+    "commands": [
+      {
+        "cmd": "kubectl get nodes",
+        "short": "list nodes",
+        "desc": "Lists cluster nodes with status, roles, age, and version. -o wide adds IPs, OS, and container runtime.",
+        "examples": [
+          {
+            "command": "kubectl get nodes",
+            "note": "list all nodes"
+          },
+          {
+            "command": "kubectl get nodes -o wide",
+            "note": "with IPs and runtime info"
+          },
+          {
+            "command": "kubectl top node",
+            "note": "live cpu / memory per node"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl config",
+        "short": "contexts & clusters",
+        "desc": "Manages kubeconfig: which cluster, user, and namespace you're pointed at. use-context is how you switch clusters.",
+        "examples": [
+          {
+            "command": "kubectl config get-contexts",
+            "note": "list available contexts"
+          },
+          {
+            "command": "kubectl config use-context prod",
+            "note": "switch to the prod cluster"
+          },
+          {
+            "command": "kubectl config set-context --current --namespace=staging",
+            "note": "change default namespace"
+          },
+          {
+            "command": "kubectl config current-context",
+            "note": "where am I pointed right now?"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl get svc",
+        "short": "list services",
+        "desc": "Lists services with type, cluster IP, external IP, and ports — how traffic finds your pods.",
+        "examples": [
+          {
+            "command": "kubectl get svc",
+            "note": "services in current namespace"
+          },
+          {
+            "command": "kubectl get svc -A",
+            "note": "all services in the cluster"
+          },
+          {
+            "command": "kubectl describe svc api",
+            "note": "endpoints and selector detail"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl get ns",
+        "short": "namespaces",
+        "desc": "Lists namespaces. Combine with -n on any other command to work inside one, or create/delete them directly.",
+        "examples": [
+          {
+            "command": "kubectl get ns",
+            "note": "list namespaces"
+          },
+          {
+            "command": "kubectl create ns feature-x",
+            "note": "create a namespace"
+          },
+          {
+            "command": "kubectl delete ns feature-x",
+            "note": "delete one (and everything in it!)"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl cordon / drain",
+        "short": "node maintenance",
+        "desc": "cordon marks a node unschedulable; drain also evicts its pods — the standard prelude to node maintenance. uncordon brings it back.",
+        "examples": [
+          {
+            "command": "kubectl cordon node-1",
+            "note": "stop new pods landing on node-1"
+          },
+          {
+            "command": "kubectl drain node-1 --ignore-daemonsets",
+            "note": "evict pods for maintenance"
+          },
+          {
+            "command": "kubectl uncordon node-1",
+            "note": "make it schedulable again"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl api-resources",
+        "short": "what can I create?",
+        "desc": "Lists every resource type the cluster knows about, with short names (po, svc, deploy…) and whether they're namespaced. Also see kubectl explain for field docs.",
+        "examples": [
+          {
+            "command": "kubectl api-resources",
+            "note": "all resource types + short names"
+          },
+          {
+            "command": "kubectl explain pod.spec.containers",
+            "note": "docs for a manifest field"
+          },
+          {
+            "command": "kubectl api-resources --namespaced=false",
+            "note": "cluster-scoped resources only"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "output",
+    "color": "#8ec07c",
+    "commands": [
+      {
+        "cmd": "kubectl -o jsonpath",
+        "short": "extract specific fields",
+        "desc": "Pulls exact fields out of any resource using JSONPath — the syntax nobody remembers and everyone looks up. Essential for scripting.",
+        "examples": [
+          {
+            "command": "kubectl get pod my-pod -o jsonpath='{.status.podIP}'",
+            "note": "just the pod IP"
+          },
+          {
+            "command": "kubectl get pods -o jsonpath='{.items[*].metadata.name}'",
+            "note": "all pod names, space-separated"
+          },
+          {
+            "command": "kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{\"\\t\"}{.status.nodeInfo.kubeletVersion}{\"\\n\"}{end}'",
+            "note": "name + version per line"
+          },
+          {
+            "command": "kubectl get secret db -o jsonpath='{.data.password}' | base64 -d",
+            "note": "decode a secret value"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl -o custom-columns",
+        "short": "build your own table",
+        "desc": "Renders any fields you want as a table — like jsonpath but human-readable. Great for one-off audits (which image is every pod running?).",
+        "examples": [
+          {
+            "command": "kubectl get pods -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image",
+            "note": "pod → image table"
+          },
+          {
+            "command": "kubectl get pods -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName",
+            "note": "which node each pod is on"
+          },
+          {
+            "command": "kubectl get pv -o custom-columns=NAME:.metadata.name,SIZE:.spec.capacity.storage,CLAIM:.spec.claimRef.name",
+            "note": "volume → claim mapping"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl --field-selector",
+        "short": "filter beyond labels",
+        "desc": "Filters by resource fields instead of labels — status, node name, namespace. The quickest way to find every non-running pod in a cluster.",
+        "examples": [
+          {
+            "command": "kubectl get pods -A --field-selector=status.phase!=Running",
+            "note": "everything unhealthy, cluster-wide"
+          },
+          {
+            "command": "kubectl get pods --field-selector spec.nodeName=node-1",
+            "note": "all pods on one node"
+          },
+          {
+            "command": "kubectl get events --field-selector involvedObject.name=my-pod",
+            "note": "events for one object"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl --sort-by",
+        "short": "sort any listing",
+        "desc": "Sorts output by any field path. Combine with -o wide or top for instant 'worst offenders' lists.",
+        "examples": [
+          {
+            "command": "kubectl get pods --sort-by=.status.startTime",
+            "note": "oldest pods first"
+          },
+          {
+            "command": "kubectl get pods -A --sort-by=.metadata.creationTimestamp",
+            "note": "cluster-wide by age"
+          },
+          {
+            "command": "kubectl get pv --sort-by=.spec.capacity.storage",
+            "note": "volumes by size"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl get -o yaml",
+        "short": "dump full manifests",
+        "desc": "Prints the complete live object as YAML — including everything the cluster added (status, defaults, managed fields). The source of truth when the manifest in git doesn't match reality.",
+        "examples": [
+          {
+            "command": "kubectl get deploy api -o yaml",
+            "note": "full live deployment"
+          },
+          {
+            "command": "kubectl get pod my-pod -o yaml | less",
+            "note": "page through a big object"
+          },
+          {
+            "command": "kubectl get cm app-config -o yaml > backup.yaml",
+            "note": "back up before editing"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "advanced",
+    "color": "#fe8019",
+    "commands": [
+      {
+        "cmd": "kubectl debug",
+        "short": "ephemeral debug containers",
+        "desc": "Attaches a temporary debug container to a running pod — the modern answer when the container is distroless and has no shell. Can also debug nodes directly.",
+        "examples": [
+          {
+            "command": "kubectl debug -it my-pod --image=busybox --target=app",
+            "note": "attach busybox to a shell-less pod"
+          },
+          {
+            "command": "kubectl debug node/node-1 -it --image=ubuntu",
+            "note": "shell onto a node's host filesystem"
+          },
+          {
+            "command": "kubectl debug my-pod -it --copy-to=my-pod-debug --container=app -- sh",
+            "note": "debug a copy, leave the original alone"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl diff",
+        "short": "preview before apply",
+        "desc": "Shows exactly what would change if you applied a manifest, as a diff against the live cluster. Run it before every apply to prod and you'll never be surprised.",
+        "examples": [
+          {
+            "command": "kubectl diff -f deployment.yaml",
+            "note": "what would this apply change?"
+          },
+          {
+            "command": "kubectl diff -f ./manifests/",
+            "note": "diff a whole directory"
+          },
+          {
+            "command": "kubectl diff -k overlays/prod | less",
+            "note": "diff a kustomize overlay"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl auth can-i",
+        "short": "RBAC sanity check",
+        "desc": "Answers 'am I allowed to do X?' instantly — and with --as, whether a given service account can. Saves an hour of reading Role bindings.",
+        "examples": [
+          {
+            "command": "kubectl auth can-i delete pods",
+            "note": "can I delete pods here?"
+          },
+          {
+            "command": "kubectl auth can-i create deploy -n prod",
+            "note": "check in a specific namespace"
+          },
+          {
+            "command": "kubectl auth can-i list secrets --as=system:serviceaccount:app:ci-bot",
+            "note": "check as a service account"
+          },
+          {
+            "command": "kubectl auth can-i --list",
+            "note": "everything I'm allowed to do"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl wait",
+        "short": "block until ready",
+        "desc": "Blocks until a resource reaches a condition — the glue for CI pipelines and scripts that need to know 'is it actually up?'",
+        "examples": [
+          {
+            "command": "kubectl wait --for=condition=ready pod -l app=api --timeout=60s",
+            "note": "wait for pods to be ready"
+          },
+          {
+            "command": "kubectl wait --for=condition=available deploy/api --timeout=120s",
+            "note": "wait for a deployment"
+          },
+          {
+            "command": "kubectl wait --for=delete pod/my-pod --timeout=30s",
+            "note": "wait until it's gone"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl create job",
+        "short": "jobs & cronjob triggers",
+        "desc": "Creates one-off Jobs — including manually firing a CronJob right now instead of waiting for its schedule, a classic on-call move.",
+        "examples": [
+          {
+            "command": "kubectl create job backup-now --from=cronjob/nightly-backup",
+            "note": "trigger a cronjob immediately"
+          },
+          {
+            "command": "kubectl create job migrate --image=repo/app:v2 -- ./migrate.sh",
+            "note": "one-off task from an image"
+          },
+          {
+            "command": "kubectl get jobs --watch",
+            "note": "watch job completion"
+          }
+        ]
+      },
+      {
+        "cmd": "kubectl create secret",
+        "short": "secrets & configmaps",
+        "desc": "Creates Secrets (and ConfigMaps, same pattern) from literals or files without hand-writing base64 in YAML.",
+        "examples": [
+          {
+            "command": "kubectl create secret generic db --from-literal=password=s3cr3t",
+            "note": "secret from a literal"
+          },
+          {
+            "command": "kubectl create secret generic tls --from-file=./cert.pem",
+            "note": "secret from a file"
+          },
+          {
+            "command": "kubectl create configmap app-config --from-file=./config/",
+            "note": "configmap from a directory"
+          },
+          {
+            "command": "kubectl create secret generic db --from-literal=pw=x --dry-run=client -o yaml",
+            "note": "generate YAML for git instead"
+          }
+        ]
+      }
+    ]
+  }
+]

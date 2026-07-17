@@ -1,0 +1,27 @@
+{
+  "name": "kubepill",
+  "version": "1.0.0",
+  "description": "A floating kubectl cheat sheet for your desktop. Type in the pill, it expands.",
+  "scripts": {
+    "dev": "neu run",
+    "build": "neu build --release",
+    "update": "neu update",
+    "validate": "node scripts/validate-commands.js"
+  },
+  "keywords": [
+    "kubernetes",
+    "kubectl",
+    "cheatsheet",
+    "widget",
+    "desktop",
+    "k8s"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@neutralinojs/neu": "^11.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/kubepill.git"
+  }
+}

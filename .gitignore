@@ -1,0 +1,17 @@
+# build output
+/dist/
+/bin/
+
+# neutralino client library (fetched by `neu update`)
+/src/js/
+
+# dependencies
+node_modules/
+
+# os cruft
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+neutralinojs.log

@@ -1,0 +1,29 @@
+name: Validate
+
+# Runs on every push and pull request. Since commands.json is the main thing
+# contributors edit, this catches malformed entries before they merge and
+# break the app at runtime.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    name: Validate commands.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check the command data
+        run: node scripts/validate-commands.js
+
+      - name: Check the app builds
+        run: |
+          npm install
+          npx neu update
+          npx neu build --release

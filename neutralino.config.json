@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralinojs/main/schemas/neutralino.config.schema.json",
+  "applicationId": "dev.kubepill.app",
+  "version": "1.0.0",
+  "defaultMode": "window",
+  "port": 0,
+  "documentRoot": "/src/",
+  "url": "/",
+  "enableServer": true,
+  "enableNativeAPI": true,
+  "tokenSecurity": "one-time",
+  "logging": {
+    "enabled": false,
+    "writeToLogFile": false
+  },
+  "nativeAllowList": [
+    "app.*",
+    "clipboard.*",
+    "window.*",
+    "events.*"
+  ],
+  "modes": {
+    "window": {
+      "title": "kubePill",
+      "width": 520,
+      "height": 64,
+      "minWidth": 200,
+      "minHeight": 50,
+      "center": true,
+      "fullScreen": false,
+      "alwaysOnTop": false,
+      "icon": "/src/icons/appIcon.png",
+      "enableInspector": false,
+      "borderless": true,
+      "transparent": true,
+      "maximize": false,
+      "hidden": false,
+      "resizable": true,
+      "exitProcessOnClose": true
+    }
+  },
+  "cli": {
+    "binaryName": "kubepill",
+    "resourcesPath": "/src/",
+    "extensionsPath": "/extensions/",
+    "clientLibrary": "/src/js/neutralino.js",
+    "binaryVersion": "5.5.0",
+    "clientVersion": "5.5.0"
+  }
+}

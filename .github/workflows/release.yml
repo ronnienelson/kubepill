@@ -1,0 +1,91 @@
+name: Build and Release
+
+# Runs when you push a version tag, e.g.:
+#   git tag v1.0.0 && git push origin v1.0.0
+# It builds every platform, zips them up, and attaches them to a GitHub Release.
+# You can also trigger it by hand from the Actions tab.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write # needed to create the release
+
+jobs:
+  build:
+    name: Build binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Fetch the Neutralino runtime
+        run: npx neu update
+
+      - name: Build for all platforms
+        run: npx neu build --release
+
+      - name: Package each platform
+        run: |
+          set -euo pipefail
+          cd dist/kubepill
+          mkdir -p ../../artifacts
+
+          package() {
+            local binary="$1" outdir="$2" zipname="$3"
+            mkdir -p "$outdir"
+            cp "$binary" "$outdir/"
+            cp resources.neu "$outdir/"
+            cp ../../README.md "$outdir/" 2>/dev/null || true
+            cp ../../LICENSE "$outdir/" 2>/dev/null || true
+            zip -r "../../artifacts/$zipname" "$outdir" > /dev/null
+            rm -rf "$outdir"
+            echo "packaged $zipname"
+          }
+
+          package kubepill-win_x64.exe    kubepill kubepill-windows-x64.zip
+          package kubepill-mac_arm64      kubepill kubepill-macos-arm64.zip
+          package kubepill-mac_x64        kubepill kubepill-macos-x64.zip
+          package kubepill-linux_x64      kubepill kubepill-linux-x64.zip
+          package kubepill-linux_arm64    kubepill kubepill-linux-arm64.zip
+
+          ls -lh ../../artifacts
+
+      - name: Upload artifacts (so they're downloadable even without a tag)
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubepill-builds
+          path: artifacts/*.zip
+
+      - name: Create the release and attach the zips
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.zip
+          generate_release_notes: true
+          body: |
+            ## Install
+
+            Download the zip for your platform below, unzip it anywhere, and run the executable.
+            **Keep `resources.neu` next to the executable** — that file is the app.
+
+            | Platform | Download |
+            |---|---|
+            | Windows | `kubepill-windows-x64.zip` |
+            | macOS (Apple Silicon) | `kubepill-macos-arm64.zip` |
+            | macOS (Intel) | `kubepill-macos-x64.zip` |
+            | Linux | `kubepill-linux-x64.zip` |
+
+            These builds are unsigned, so Windows SmartScreen and macOS Gatekeeper will
+            warn on first run. See the [README](https://github.com/${{ github.repository }}#install)
+            for how to get past that, or build from source.
