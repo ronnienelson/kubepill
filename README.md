@@ -77,7 +77,7 @@ sudo dnf install webkit2gtk4.1
 Requires [Node.js](https://nodejs.org) 18+.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/kubepill.git
+git clone https://github.com/ronnienelson/kubepill.git
 cd kubepill
 npm install
 npx neu update      # fetches the Neutralino runtime + client library
